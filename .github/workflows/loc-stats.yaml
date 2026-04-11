@@ -1,46 +1,26 @@
-name: LOC Timeline
+name: LOC Stats
 
 on:
-  schedule:
-    - cron: '0 3 * * 0'  # weekly, Sunday 03:00 UTC
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  update:
+  loc:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
       - name: Install tokei
         run: |
-          wget -qO- https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz \
-            | tar xz && sudo mv tokei /usr/local/bin/
+          for i in {1..5}; do
+            curl -fL https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei_$(uname -s)_$(uname -m).gz -o tokei.gz && break || sleep 15;
+          done
+          gzip -t tokei.gz
+          tar -xzf tokei.gz -C /tmp
+          sudo install -m 0755 /tmp/tokei /usr/local/bin/tokei
+          tokei --version
 
-      - name: Collect timeline
-        env:
-          GH_TOKEN:    ${{ secrets.GH_TOKEN }}   # PAT: repo + read:user
-          GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          GH_EMAIL:    ${{ secrets.GH_EMAIL }}   # email used in commits
-          WEEKS_BACK:  "26"
-        run: python3 scripts/collect_timeline.py
-
-      - name: Render SVG
-        run: python3 scripts/render_svg.py
-
-      - name: Commit and push
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/loc_chart.svg
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update LOC chart"
-          git push
-
-      - name: Update README
-        env:
-          GH_TOKEN:    ${{ secrets.GH_TOKEN }}
-          GH_USERNAME: ${{ secrets.GH_USERNAME }}
-        run: python3 scripts/update_readme.py
+      - name: Collect LOC Stats
+        run: tokei .
