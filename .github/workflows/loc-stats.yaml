@@ -15,14 +15,13 @@ jobs:
 
       - name: Install tokei
         run: |
-          wget -qO tokei.tar.gz \
-            https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz
-          tar xf tokei.tar.gz && sudo mv tokei /usr/local/bin/
+          cargo install --locked tokei
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Clone all repos and count LOC
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GH_USER: your-github-username
+          GH_USER: ${{ github.repository_owner }}
         run: |
           mkdir -p /tmp/repos
           # Fetch all non-fork repos (public + private with token)
