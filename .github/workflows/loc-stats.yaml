@@ -14,12 +14,8 @@ jobs:
 
       - name: Install tokei
         run: |
-          for i in {1..5}; do
-            curl -fL https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei_$(uname -s)_$(uname -m).gz -o tokei.gz && break || sleep 15;
-          done
-          gzip -t tokei.gz
-          tar -xzf tokei.gz -C /tmp
-          sudo install -m 0755 /tmp/tokei /usr/local/bin/tokei
+          cargo install --locked tokei
+          export PATH="$HOME/.cargo/bin:$PATH"
           tokei --version
 
       - name: Collect LOC Stats
