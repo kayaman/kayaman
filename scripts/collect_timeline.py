@@ -43,10 +43,19 @@ EXT_MAP: dict[str, str | None] = {
     ".c":     "C",           ".h":   "C",
     ".cpp":   "C++",         ".hpp": "C++",
     ".ipynb": "Jupyter",
+    ".json": "JSON",
+    ".yaml": "YAML",
+    ".yml": "YAML",
+    ".toml": "TOML",
+    ".md": "Markdown",
+    ".css": "CSS",
+    ".html": "HTML",
+    ".txt": "Text",
+    ".svg": "SVG",
     # Noise — exclude
-    ".json": None, ".yaml": None, ".yml": None, ".toml": None,
-    ".md":   None, ".txt":  None, ".xml": None, ".html": None,
-    ".css":  None, ".svg":  None, ".lock": None, ".sum":  None,
+    ".xml": None,
+    ".lock": None,
+    ".sum":  None,
 }
 
 
