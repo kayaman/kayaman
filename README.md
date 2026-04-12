@@ -15,4 +15,26 @@
 ### 🔭 What I have been doing...
 
 <!--START_SECTION:loc-->
+![Lines of code written per week](https://raw.githubusercontent.com/kayaman/kayaman/main/assets/loc_chart.svg?v=20260412)
+
+<details>
+<summary>Breakdown · 2025-W50 → 2026-W15</summary>
+
+| Language | Lines added | Share |
+|----------|------------:|------:|
+| JavaScript | +425,081 | 28.8% |
+| TypeScript | +413,788 | 28.0% |
+| JSON | +229,874 | 15.6% |
+| Markdown | +207,234 | 14.0% |
+| Python | +122,355 | 8.3% |
+| YAML | +33,900 | 2.3% |
+| Shell | +17,301 | 1.2% |
+| HCL | +15,088 | 1.0% |
+| Text | +3,976 | 0.3% |
+| Rust | +3,898 | 0.3% |
+| HTML | +3,095 | 0.2% |
+| CSS | +2,694 | 0.2% |
+
+<sub>Source: git history · `diff-tree --numstat` · updated 2026-04-12</sub>
+</details>
 <!--END_SECTION:loc-->
