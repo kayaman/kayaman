@@ -21,7 +21,7 @@ from pathlib import Path
 GH_TOKEN    = os.environ["GH_TOKEN"]
 GH_USERNAME = os.environ["GH_USERNAME"]
 GH_EMAIL    = os.environ.get("GH_EMAIL", "")
-WEEKS_BACK  = int(os.environ.get("WEEKS_BACK", "26"))
+WEEKS_BACK  = int(os.environ.get("WEEKS_BACK", "20"))
 
 REPOS_DIR   = Path("/tmp/repos")
 OUTPUT_FILE = Path("/tmp/timeline.json")
@@ -30,23 +30,43 @@ TOP_N       = 6
 EXT_MAP: dict[str, str | None] = {
     ".py":    "Python",
     ".ts":    "TypeScript",  ".tsx": "TypeScript",
-    ".js":    "JavaScript",  ".jsx": "JavaScript", ".mjs": "JavaScript",
+    ".js":    "JavaScript",  ".jsx": "JavaScript", ".mjs": "JavaScript", ".cjs":    "JavaScript",
     ".tf":    "HCL",         ".hcl": "HCL",
     ".rs":    "Rust",
     ".go":    "Go",
-    ".sh":    "Shell",       ".bash": "Shell",
+    ".sh":    "Shell",       
+    ".env":   ".env",
     ".sql":   "SQL",
     ".rb":    "Ruby",
     ".java":  "Java",
+    ".svelte":  "Svelte",
     ".kt":    "Kotlin",
     ".scala": "Scala",
-    ".c":     "C",           ".h":   "C",
-    ".cpp":   "C++",         ".hpp": "C++",
-    ".ipynb": "Jupyter",
-    # Noise — exclude
-    ".json": None, ".yaml": None, ".yml": None, ".toml": None,
-    ".md":   None, ".txt":  None, ".xml": None, ".html": None,
-    ".css":  None, ".svg":  None, ".lock": None, ".sum":  None,
+    ".c":     "C",           
+    ".h":   "C",
+    ".cpp":   "C++",
+    ".hpp": "C++",
+    ".ipynb": "jupyter",
+    ".json": "json", 
+    ".yaml": "yaml", 
+    ".yml": "yaml", 
+    ".toml": "toml",
+    ".md":   "markdown", 
+    ".txt":  "text", 
+    ".xml": "xml", 
+    ".html": "html",
+    ".css":  "css",
+    ".scss":  "css",
+    ".svg":  "image",
+    ".jpg":  "image",
+    ".jpeg":  "image",
+    ".png":  "image",
+    ".ico":  "image",
+    "AGENTS.md": "agents",
+    "CLAUDE.md": "agents",
+   
+    # ignore
+    ".lock": None, ".sum":  None,
 }
 
 
@@ -73,11 +93,11 @@ def get_email() -> str:
 def list_repos() -> list[dict]:
     repos, page = [], 1
     while True:
-        batch = api(f"/user/repos?type=owner&per_page=100&page={page}")
+        batch = api(f"/user/repos?type=owner&per_page=25&page={page}")
         if not batch:
             break
         repos.extend(r for r in batch if not r["fork"] and not r["archived"])
-        if len(batch) < 100:
+        if len(batch) < 25:
             break
         page += 1
     print(f"[collect] {len(repos)} repos")
@@ -102,7 +122,7 @@ def isoweek(dt: datetime) -> str:
 
 
 def ext_lang(filename: str) -> str | None:
-    return EXT_MAP.get(Path(filename).suffix.lower(), "Other")
+    return EXT_MAP.get(Path(filename).suffix.lower(), "other")
 
 
 def scan_repo(path: Path, email: str, since: datetime) -> dict:
@@ -201,7 +221,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }, indent=2))
 
-    print(f"\n[collect] Top languages (last {WEEKS_BACK} weeks):")
+    print(f"\n[collect] Estimate coding last {WEEKS_BACK} weeks):")
     for lang in top_langs:
         print(f"  {lang:<20} +{totals[lang]:>8,} lines")
 
