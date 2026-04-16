@@ -25,7 +25,7 @@ WEEKS_BACK  = int(os.environ.get("WEEKS_BACK", "26"))
 
 REPOS_DIR   = Path("/tmp/repos")
 OUTPUT_FILE = Path("/tmp/timeline.json")
-TOP_N       = 12
+TOP_N       = 11
 
 EXT_MAP: dict[str, str | None] = {
     ".py":    "Python",
