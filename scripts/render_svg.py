@@ -40,11 +40,11 @@ DEFAULT_COLOR = "#8B8B8B"
 
 
 def fmt_week(iso_week: str) -> str:
-    """'2024-W40' → 'W40' or 'Oct' at month boundaries."""
+    """'2024-W40' → 'w40' or 'Oct' at month boundaries."""
     try:
         year, week = iso_week.split("-W")
         # Find the Monday of this ISO week
-        dt = datetime.strptime(f"{year}-W{int(week):02d}-1", "%G-W%V-%u")
+        dt = datetime.strptime(f"{year}-w{int(week):02d}-1", "%G-W%V-%u")
         # Show month name on first week of month
         if dt.day <= 7:
             return dt.strftime("%b")
@@ -97,13 +97,11 @@ def render(data: dict) -> str:
 
     def scale_y(v: int) -> float:
         return CHART_H - (v / nice_max) * CHART_H
-
-    # ── SVG pieces ────────────────────────────────────────────────────────────
+    
     bars_svg   = []
     xlabels    = []
     gridlines  = []
 
-    # Grid lines (3 horizontal)
     for fraction in [0.25, 0.5, 0.75, 1.0]:
         val = int(nice_max * fraction)
         y   = PAD_TOP + scale_y(val)
@@ -118,7 +116,6 @@ def render(data: dict) -> str:
             f'{abbreviate(val)}</text>'
         )
 
-    # Bars
     prev_label = ""
     for i, week in enumerate(weeks):
         x        = PAD_LEFT + i * bar_step
@@ -141,7 +138,6 @@ def render(data: dict) -> str:
             )
             stack += bar_h
 
-        # X-axis labels — show month transitions + every 4th week label
         label = fmt_week(week)
         if label != prev_label and (label.isalpha() or i % 4 == 0):
             xval = x + bar_w / 2
@@ -152,7 +148,6 @@ def render(data: dict) -> str:
             )
             prev_label = label
 
-    # Legend
     legend_items = []
     lx = PAD_LEFT + CHART_W + 16
     ly = PAD_TOP + 8
