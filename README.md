@@ -23,15 +23,14 @@
 | JavaScript | +430,372 | 29.8% |
 | TypeScript | +423,353 | 29.3% |
 | JSON | +216,594 | 15.0% |
-| Markdown | +195,242 | 13.5% |
-| Python | +102,342 | 7.1% |
+| Markdown | +195,243 | 13.5% |
+| Python | +102,346 | 7.1% |
 | YAML | +32,850 | 2.3% |
 | Shell | +15,887 | 1.1% |
 | HCL | +13,451 | 0.9% |
 | Rust | +5,863 | 0.4% |
 | Text | +3,830 | 0.3% |
 | HTML | +3,095 | 0.2% |
-| CSS | +2,665 | 0.2% |
 
 <sub>Source: git history · `diff-tree --numstat` · updated 2026-04-16</sub>
 </details>
