@@ -240,7 +240,7 @@ def render(data: dict) -> str:
   <!-- Footer -->
   <text x="{PAD_LEFT}" y="{subtitle_y}"
         font-size="9" fill="var(--muted)">
-    Generated {generated} · git diff-tree --numstat · GHE private repos
+    Generated {generated} · git diff-tree --numstat
   </text>
 </svg>"""
 
