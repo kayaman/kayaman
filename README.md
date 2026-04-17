@@ -21,9 +21,9 @@
 | Language | Lines added | Share |
 |----------|------------:|------:|
 | JavaScript | +431,321 | 29.7% |
-| TypeScript | +430,043 | 29.6% |
+| TypeScript | +430,334 | 29.6% |
 | JSON | +216,652 | 14.9% |
-| Markdown | +195,932 | 13.5% |
+| Markdown | +195,935 | 13.5% |
 | Python | +104,334 | 7.2% |
 | YAML | +32,865 | 2.3% |
 | Shell | +15,887 | 1.1% |
