@@ -16,14 +16,14 @@
 ![Lines of code written per week](https://raw.githubusercontent.com/kayaman/kayaman/main/assets/loc_chart.svg?v=20260420)
 
 <details>
-<summary>Breakdown · 2025-W51 → 2026-W16</summary>
+<summary>Breakdown · 2025-W52 → 2026-W17</summary>
 
 | Language | Lines added | Share |
 |----------|------------:|------:|
 | TypeScript | +447,976 | 30.2% |
 | JavaScript | +434,512 | 29.3% |
 | JSON | +217,036 | 14.6% |
-| Markdown | +199,648 | 13.5% |
+| Markdown | +199,651 | 13.5% |
 | Python | +106,529 | 7.2% |
 | YAML | +33,300 | 2.2% |
 | Shell | +16,900 | 1.1% |
