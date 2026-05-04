@@ -23,7 +23,7 @@ from urllib.parse import quote, urlsplit, urlunsplit
 WEEKS_BACK = int(os.environ.get("WEEKS_BACK", "26"))
 
 REPOS_DIR = Path("/tmp/repos")
-OUTPUT_FILE = Path("/tmp/timeline.json")
+OUTPUT_FILE = Path(os.environ.get("OUTPUT_FILE", "/tmp/timeline.json"))
 TOP_N = 10
 
 EXT_MAP: dict[str, str | None] = {

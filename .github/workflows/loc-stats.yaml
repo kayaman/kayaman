@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install tokei
         run: |
@@ -22,6 +22,7 @@ jobs:
         run: tokei .
 
       - name: Collect timeline
+        uses: nick-fields/retry@v3
         env:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -33,11 +34,21 @@ jobs:
           GHE_API_URL:    ${{ vars.GHE_API_URL }}
           GHE_HOST:       ${{ vars.GHE_HOST }}
           WEEKS_BACK:  "18"
-        run: python3 scripts/collect_timeline.py
-   
+          OUTPUT_FILE: "/tmp/timeline.json"
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: python3 scripts/collect_timeline.py
+
       - name: Render SVG
-        run: python3 scripts/render_svg.py
- 
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: python3 scripts/render_svg.py
+
       - name: Commit and push
         run: |
           git config user.name  "github-actions[bot]"
@@ -46,9 +57,14 @@ jobs:
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update LOC chart"
           git push
- 
+
       - name: Update README
+        uses: nick-fields/retry@v3
         env:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
-        run: python3 scripts/update_readme.py
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: python3 scripts/update_readme.py
