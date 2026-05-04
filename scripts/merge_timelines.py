@@ -22,14 +22,17 @@ if ghe is None:
 else:
     all_weeks = sorted(set(gh["weeks"]) | set(ghe["weeks"]))
     merged_weekly = defaultdict(lambda: defaultdict(int))
+    totals = defaultdict(int)
     for src in (gh, ghe):
         for lang, counts in src["series"].items():
             for week, n in zip(src["weeks"], counts):
                 merged_weekly[week][lang] += n
-    totals = defaultdict(int)
-    for langs in merged_weekly.values():
-        for lang, n in langs.items():
-            totals[lang] += n
+        if "totals" in src:
+            for lang, n in src["totals"].items():
+                totals[lang] += n
+        else:
+            for lang, counts in src["series"].items():
+                totals[lang] += sum(counts)
     top_langs = [l for l, _ in sorted(totals.items(), key=lambda x: -x[1])
                  if l.lower() != "other"][:TOP_N]
     series = {
