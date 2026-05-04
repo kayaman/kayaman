@@ -21,10 +21,11 @@ from pathlib import Path
 GH_TOKEN    = os.environ["GH_TOKEN"]
 GH_USERNAME = os.environ["GH_USERNAME"]
 GH_EMAIL    = os.environ.get("GH_EMAIL", "")
+GH_API_URL  = os.environ.get("GH_API_URL", "https://api.github.com")
 WEEKS_BACK  = int(os.environ.get("WEEKS_BACK", "26"))
 
 REPOS_DIR   = Path("/tmp/repos")
-OUTPUT_FILE = Path("/tmp/timeline.json")
+OUTPUT_FILE = Path(os.environ.get("OUTPUT_FILE", "/tmp/timeline.json"))
 TOP_N       = 10
 
 EXT_MAP: dict[str, str | None] = {
@@ -60,7 +61,7 @@ EXT_MAP: dict[str, str | None] = {
 
 
 def api(path: str) -> list | dict:
-    url = f"https://api.github.com{path}"
+    url = f"{GH_API_URL}{path}"
     req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {GH_TOKEN}",
         "Accept": "application/vnd.github.v3+json",
