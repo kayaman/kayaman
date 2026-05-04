@@ -142,6 +142,7 @@ def render(data: dict) -> str:
     series    = data["series"]
     totals    = data["totals"]
     generated = data.get("generated_at", "")[:10]
+    source_label = data.get("source_label", "github.com")
     stats     = compute_stats(data)
 
     n_weeks = len(weeks)
@@ -571,7 +572,7 @@ def render(data: dict) -> str:
     Generated {generated} · git diff-tree --numstat · non-forked, non-archived repos
   </text>
   <text x="{W - PAD}" y="{H - 14}" class="footer" text-anchor="end">
-    github.com · auto-updated
+    {source_label} · auto-updated
   </text>
 </svg>"""
     return svg

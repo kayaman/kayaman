@@ -26,6 +26,12 @@ jobs:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_EMAIL:    ${{ secrets.GH_EMAIL }}
+          GHE_TOKEN:   ${{ secrets.GHE_TOKEN }}
+          GHE_USERNAME: ${{ secrets.GHE_USERNAME }}
+          GHE_EMAIL:   ${{ secrets.GHE_EMAIL }}
+          GHE_SERVER_URL: ${{ vars.GHE_SERVER_URL }}
+          GHE_API_URL:    ${{ vars.GHE_API_URL }}
+          GHE_HOST:       ${{ vars.GHE_HOST }}
           WEEKS_BACK:  "18"
         run: python3 scripts/collect_timeline.py
    
