@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install tokei
         run: |
@@ -21,22 +21,47 @@ jobs:
       - name: Collect LOC Stats
         run: tokei .
 
-      - name: Collect timeline
+      - name: Collect timeline (github.com)
         uses: nick-fields/retry@v3
         env:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_EMAIL:    ${{ secrets.GH_EMAIL }}
           WEEKS_BACK:  "18"
+          OUTPUT_FILE: "/tmp/timeline.json"
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: python3 scripts/collect_timeline.py
+
+      - name: Collect timeline (GHE)
+        if: ${{ secrets.GHE_TOKEN != '' }}
+        uses: nick-fields/retry@v3
+        env:
+          GH_TOKEN:    ${{ secrets.GHE_TOKEN }}
+          GH_USERNAME: ${{ secrets.GHE_USERNAME }}
+          GH_EMAIL:    ${{ secrets.GHE_EMAIL }}
+          GH_API_URL:  ${{ secrets.GHE_API_URL || 'https://api.github.com' }}
+          WEEKS_BACK:  "18"
+          OUTPUT_FILE: "/tmp/timeline_ghe.json"
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: python3 scripts/collect_timeline.py
+
+      - name: Merge timelines
+        run: python3 scripts/merge_timelines.py
+
+      - name: Render SVG
+        uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 10
-          command: python3 scripts/collect_timeline.py
-   
-      - name: Render SVG
-        run: python3 scripts/render_svg.py
- 
+          command: python3 scripts/render_svg.py
+
       - name: Commit and push
         run: |
           git config user.name  "github-actions[bot]"
@@ -45,7 +70,7 @@ jobs:
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update LOC chart"
           git push
- 
+
       - name: Update README
         uses: nick-fields/retry@v3
         env:
