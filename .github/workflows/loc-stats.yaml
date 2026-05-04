@@ -81,4 +81,3 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 10
           command: python3 scripts/update_readme.py
-
