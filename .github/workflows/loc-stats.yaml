@@ -36,12 +36,13 @@ jobs:
           command: python3 scripts/collect_timeline.py
 
       - name: Collect timeline (GHE)
+        if: ${{ secrets.GHE_TOKEN != '' }}
         uses: nick-fields/retry@v3
         env:
           GH_TOKEN:    ${{ secrets.GHE_TOKEN }}
           GH_USERNAME: ${{ secrets.GHE_USERNAME }}
           GH_EMAIL:    ${{ secrets.GHE_EMAIL }}
-          GH_API_URL:  ${{ secrets.GHE_API_URL }}
+          GH_API_URL:  ${{ secrets.GHE_API_URL || 'https://api.github.com' }}
           WEEKS_BACK:  "18"
           OUTPUT_FILE: "/tmp/timeline_ghe.json"
         with:

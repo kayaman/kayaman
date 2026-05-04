@@ -21,7 +21,7 @@ from pathlib import Path
 GH_TOKEN    = os.environ["GH_TOKEN"]
 GH_USERNAME = os.environ["GH_USERNAME"]
 GH_EMAIL    = os.environ.get("GH_EMAIL", "")
-GH_API_URL  = os.environ.get("GH_API_URL", "https://api.github.com")
+GH_API_URL  = os.environ.get("GH_API_URL", "https://api.github.com").rstrip("/")
 WEEKS_BACK  = int(os.environ.get("WEEKS_BACK", "26"))
 
 REPOS_DIR   = Path("/tmp/repos")
