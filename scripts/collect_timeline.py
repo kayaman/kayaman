@@ -108,16 +108,18 @@ def build_source(prefix: str, *, required: bool) -> Source | None:
     token = os.environ.get(f"{prefix}_TOKEN", "").strip()
     email = os.environ.get(f"{prefix}_EMAIL", "").strip()
     email_required = prefix != "GH"
+    required_fields = [
+        (f"{prefix}_USERNAME", username),
+        (f"{prefix}_TOKEN", token),
+    ]
+    if email_required:
+        required_fields.append((f"{prefix}_EMAIL", email))
 
     if required and (not username or not token or (email_required and not email)):
         missing = ", ".join(
             name
-            for name, value in (
-                (f"{prefix}_USERNAME", username),
-                (f"{prefix}_TOKEN", token),
-                (f"{prefix}_EMAIL", email) if email_required else ("", "ok"),
-            )
-            if name and not value
+            for name, value in required_fields
+            if not value
         )
         raise SystemExit(f"[collect] Missing required environment values: {missing}")
 
@@ -331,7 +333,7 @@ def main():
         active_labels.append(source.label)
         for i, repo in enumerate(repos, 1):
             print(
-                f"[collect] {source.label}: processing {i}/{len(repos)} repos",
+                f"[collect] {source.label}: processing repo {i} of {len(repos)}",
                 flush=True,
             )
             path = clone(source, repo)
