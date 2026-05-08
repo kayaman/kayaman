@@ -20,15 +20,15 @@
 
 | Language | Lines added | Share |
 |----------|------------:|------:|
-| JavaScript | +1,087,667 | 45.8% |
-| TypeScript | +442,260 | 18.6% |
-| JSON | +333,321 | 14.0% |
-| Markdown | +285,875 | 12.0% |
+| JavaScript | +1,087,667 | 45.7% |
+| TypeScript | +442,288 | 18.6% |
+| JSON | +333,366 | 14.0% |
+| Markdown | +285,897 | 12.0% |
 | Python | +118,312 | 5.0% |
-| YAML | +41,008 | 1.7% |
-| HCL | +23,963 | 1.0% |
+| YAML | +41,013 | 1.7% |
+| HCL | +23,964 | 1.0% |
 | Shell | +19,866 | 0.8% |
-| HTML | +14,449 | 0.6% |
+| HTML | +14,457 | 0.6% |
 | Rust | +10,669 | 0.4% |
 
 <sub>Source: github.com · git history · `diff-tree --numstat` · updated 2026-05-08</sub>
