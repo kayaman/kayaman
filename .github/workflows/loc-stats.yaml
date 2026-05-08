@@ -21,12 +21,18 @@ jobs:
       - name: Collect LOC Stats
         run: tokei .
 
-      - name: Collect timeline (github.com)
+      - name: Collect timeline
         uses: nick-fields/retry@v3
         env:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_EMAIL:    ${{ secrets.GH_EMAIL }}
+          GHE_TOKEN:   ${{ secrets.GHE_TOKEN }}
+          GHE_USERNAME: ${{ secrets.GHE_USERNAME }}
+          GHE_EMAIL:   ${{ secrets.GHE_EMAIL }}
+          GHE_SERVER_URL: ${{ vars.GHE_SERVER_URL }}
+          GHE_API_URL:    ${{ vars.GHE_API_URL }}
+          GHE_HOST:       ${{ vars.GHE_HOST }}
           WEEKS_BACK:  "18"
           OUTPUT_FILE: "/tmp/timeline.json"
         with:
@@ -34,25 +40,6 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 10
           command: python3 scripts/collect_timeline.py
-
-      - name: Collect timeline (GHE)
-        if: ${{ secrets.GHE_TOKEN != '' }}
-        uses: nick-fields/retry@v3
-        env:
-          GH_TOKEN:    ${{ secrets.GHE_TOKEN }}
-          GH_USERNAME: ${{ secrets.GHE_USERNAME }}
-          GH_EMAIL:    ${{ secrets.GHE_EMAIL }}
-          GH_API_URL:  ${{ secrets.GHE_API_URL || 'https://api.github.com' }}
-          WEEKS_BACK:  "18"
-          OUTPUT_FILE: "/tmp/timeline_ghe.json"
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          retry_wait_seconds: 10
-          command: python3 scripts/collect_timeline.py
-
-      - name: Merge timelines
-        run: python3 scripts/merge_timelines.py
 
       - name: Render SVG
         uses: nick-fields/retry@v3

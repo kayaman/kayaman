@@ -60,6 +60,7 @@ def section(data: dict) -> str:
     languages = data["languages"]
     weeks     = data["weeks"]
     generated = data.get("generated_at", "")[:10]
+    source_label = data.get("source_label", "github.com")
     period    = f"{weeks[0]} → {weeks[-1]}" if weeks else ""
     total_all = sum(totals.values())
 
@@ -85,7 +86,7 @@ def section(data: dict) -> str:
 |----------|------------:|------:|
 {rows}
 
-<sub>Source: git history · `diff-tree --numstat` · updated {generated}</sub>
+<sub>Source: {source_label} · git history · `diff-tree --numstat` · updated {generated}</sub>
 </details>
 """
 
