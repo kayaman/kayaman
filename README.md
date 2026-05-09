@@ -13,7 +13,7 @@
 ## What I have been coding..
 
 <!--START_SECTION:loc-->
-![Lines of code written per week](https://raw.githubusercontent.com/kayaman/kayaman/main/assets/loc_chart.svg?v=20260508)
+![Lines of code written per week](https://raw.githubusercontent.com/kayaman/kayaman/main/assets/loc_chart.svg?v=20260509)
 
 <details>
 <summary>Breakdown · 2026-W02 → 2026-W19</summary>
@@ -23,7 +23,7 @@
 | JavaScript | +1,087,883 | 45.7% |
 | TypeScript | +442,288 | 18.6% |
 | JSON | +333,387 | 14.0% |
-| Markdown | +286,002 | 12.0% |
+| Markdown | +286,003 | 12.0% |
 | Python | +120,007 | 5.0% |
 | YAML | +41,013 | 1.7% |
 | HCL | +23,964 | 1.0% |
@@ -31,7 +31,7 @@
 | HTML | +14,515 | 0.6% |
 | Rust | +10,669 | 0.4% |
 
-<sub>Source: github.com · git history · `diff-tree --numstat` · updated 2026-05-08</sub>
+<sub>Source: github.com · git history · `diff-tree --numstat` · updated 2026-05-09</sub>
 </details>
 <!--END_SECTION:loc-->
 
