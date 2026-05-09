@@ -29,11 +29,11 @@ TOP_N = 10
 EXT_MAP: dict[str, str | None] = {
     ".py":    "Python",
     ".ts":    "TypeScript",  ".tsx": "TypeScript",
-    ".js":    "JavaScript",  ".jsx": "JavaScript", ".mjs": "JavaScript",
+    ".js":    None,          ".jsx": None,         ".mjs": None,
     ".tf":    "HCL",         ".hcl": "HCL",
     ".rs":    "Rust",
     ".go":    "Go",
-    ".sh":    "Shell",       ".bash": "Shell",
+    ".sh":    "Bash",        ".bash": "Bash",        ".zsh": "Bash",
     ".sql":   "SQL",
     ".rb":    "Ruby",
     ".java":  "Java",
@@ -74,111 +74,29 @@ class Source:
         return REPOS_DIR / self.key
 
 
-def normalize_url(url: str) -> str:
-    url = url.strip()
-    if not url:
-        return ""
-    if "://" not in url:
-        url = f"https://{url}"
-    return url.rstrip("/")
+def build_source() -> Source:
+    username = os.environ.get("GH_USERNAME", "").strip()
+    token = os.environ.get("GH_TOKEN", "").strip()
+    email = os.environ.get("GH_EMAIL", "").strip()
 
-
-def derive_server_url(api_base: str) -> str:
-    if not api_base:
-        return ""
-    if api_base == "https://api.github.com":
-        return "https://github.com"
-    if api_base.endswith("/api/v3"):
-        return api_base[: -len("/api/v3")]
-    if api_base.endswith("/api"):
-        return api_base[: -len("/api")]
-    return api_base
-
-
-def derive_api_base(server_url: str) -> str:
-    if not server_url:
-        return ""
-    if server_url == "https://github.com":
-        return "https://api.github.com"
-    return f"{server_url}/api/v3"
-
-
-def build_source(prefix: str, *, required: bool) -> Source | None:
-    username = os.environ.get(f"{prefix}_USERNAME", "").strip()
-    token = os.environ.get(f"{prefix}_TOKEN", "").strip()
-    email = os.environ.get(f"{prefix}_EMAIL", "").strip()
-    email_required = prefix != "GH"
-    required_fields = [
-        (f"{prefix}_USERNAME", username),
-        (f"{prefix}_TOKEN", token),
-    ]
-    if email_required:
-        required_fields.append((f"{prefix}_EMAIL", email))
-
-    if required and (not username or not token or (email_required and not email)):
-        missing = ", ".join(
-            name
-            for name, value in required_fields
-            if not value
-        )
-        raise SystemExit(f"[collect] Missing required environment values: {missing}")
-
-    if not username or not token:
-        return None
-    if email_required and not email:
-        return None
-
-    if prefix == "GH":
-        server_url = "https://github.com"
-        api_base = "https://api.github.com"
-        noreply_domain = "users.noreply.github.com"
-        label = "github.com"
-    else:
-        server_url = normalize_url(
-            os.environ.get(f"{prefix}_SERVER_URL")
-            or os.environ.get(f"{prefix}_HOST", "")
-        )
-        api_base = normalize_url(os.environ.get(f"{prefix}_API_URL", ""))
-        if not server_url and api_base:
-            server_url = derive_server_url(api_base)
-        if not api_base and server_url:
-            api_base = derive_api_base(server_url)
-        if not server_url or not api_base:
-            print(f"[collect] Skipping {prefix}: host configuration is missing", flush=True)
-            return None
-        noreply_domain = urlsplit(server_url).netloc or "users.noreply.github.com"
-        label = "GitHub Enterprise"
+    missing = [name for name, value in (("GH_USERNAME", username), ("GH_TOKEN", token)) if not value]
+    if missing:
+        raise SystemExit(f"[collect] Missing required environment values: {', '.join(missing)}")
 
     return Source(
-        key=prefix.lower(),
-        label=label,
+        key="gh",
+        label="github.com",
         username=username,
         token=token,
         email=email,
-        api_base=api_base,
-        server_url=server_url,
-        noreply_domain=noreply_domain,
+        api_base="https://api.github.com",
+        server_url="https://github.com",
+        noreply_domain="users.noreply.github.com",
     )
 
 
 def configured_sources() -> list[Source]:
-    sources = []
-    primary = build_source("GH", required=True)
-    if primary:
-        sources.append(primary)
-
-    ghe_username = os.environ.get("GHE_USERNAME", "").strip()
-    ghe_token = os.environ.get("GHE_TOKEN", "").strip()
-    ghe_email = os.environ.get("GHE_EMAIL", "").strip()
-    if any((ghe_username, ghe_token, ghe_email)):
-        if all((ghe_username, ghe_token, ghe_email)):
-            secondary = build_source("GHE", required=False)
-            if secondary:
-                sources.append(secondary)
-        else:
-            print("[collect] Skipping GHE: incomplete credential configuration", flush=True)
-
-    return sources
+    return [build_source()]
 
 
 def api(source: Source, path: str) -> list | dict:
@@ -257,7 +175,17 @@ def isoweek(dt: datetime) -> str:
     return f"{iso[0]}-W{iso[1]:02d}"
 
 
+BASH_FILENAMES = {
+    ".bashrc", ".bash_profile", ".bash_logout", ".bash_aliases",
+    ".zshrc", ".zshenv", ".zprofile", ".zlogin", ".zlogout",
+    ".profile", ".inputrc",
+}
+
+
 def ext_lang(filename: str) -> str | None:
+    name = Path(filename).name
+    if name in BASH_FILENAMES:
+        return "Bash"
     return EXT_MAP.get(Path(filename).suffix.lower(), "Other")
 
 

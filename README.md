@@ -35,5 +35,5 @@
 </details>
 <!--END_SECTION:loc-->
 
-Optional workflow inputs: `GH_TOKEN`, `GH_USERNAME`, and optional `GH_EMAIL` drive the public GitHub timeline. Add `GHE_USERNAME`, `GHE_TOKEN`, and `GHE_EMAIL` to aggregate a second GitHub Enterprise account too; set `GHE_SERVER_URL` or `GHE_API_URL` as a repository variable so the workflow can reach the enterprise host.
+Optional workflow inputs: `GH_TOKEN`, `GH_USERNAME`, and optional `GH_EMAIL` drive the public GitHub timeline.
 
