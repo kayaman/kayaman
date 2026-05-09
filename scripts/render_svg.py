@@ -31,9 +31,8 @@ OUTPUT_FILE = Path("assets/loc_chart.svg")
 LANG_COLORS: dict[str, tuple[str, str]] = {
     "Python":     ("#3776AB", "#5497D4"),
     "TypeScript": ("#3178C6", "#5198E8"),
-    "JavaScript": ("#E9B824", "#F7DF1E"),
-    "HCL":        ("#6366F1", "#8B8EF7"),
-    "Shell":      ("#22C55E", "#4ADE80"),
+    "Terraform":  ("#6366F1", "#8B8EF7"),
+    "Bash":       ("#22C55E", "#4ADE80"),
     "SQL":        ("#F59E0B", "#FBBF24"),
     "Rust":       ("#F97316", "#FB9A4A"),
     "Go":         ("#06B6D4", "#38D3E8"),

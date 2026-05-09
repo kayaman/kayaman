@@ -30,7 +30,7 @@ EXT_MAP: dict[str, str | None] = {
     ".py":    "Python",
     ".ts":    "TypeScript",  ".tsx": "TypeScript",
     ".js":    None,          ".jsx": None,         ".mjs": None,
-    ".tf":    "HCL",         ".hcl": "HCL",
+    ".tf":    "Terraform",   ".hcl": "Terraform",
     ".rs":    "Rust",
     ".go":    "Go",
     ".sh":    "Bash",        ".bash": "Bash",        ".zsh": "Bash",

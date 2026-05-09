@@ -56,38 +56,15 @@ def get_readme() -> tuple[str, str]:
 
 
 def section(data: dict) -> str:
-    totals    = data["totals"]
-    languages = data["languages"]
-    weeks     = data["weeks"]
-    generated = data.get("generated_at", "")[:10]
-    source_label = data.get("source_label", "github.com")
-    period    = f"{weeks[0]} → {weeks[-1]}" if weeks else ""
-    total_all = sum(totals.values())
-
     # Cache-bust the SVG URL so GitHub doesn't serve a stale version
-    date_str  = datetime.now(timezone.utc).strftime("%Y%m%d")
-    svg_url   = (
+    date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+    svg_url = (
         f"https://raw.githubusercontent.com/{REPO}/main/"
         f"{SVG_PATH}?v={date_str}"
     )
 
-    rows = "\n".join(
-        f"| {lang} | +{totals[lang]:,} | {totals[lang]/total_all*100:.1f}% |"
-        for lang in languages
-    )
-
     return f"""
 ![Lines of code written per week]({svg_url})
-
-<details>
-<summary>Breakdown · {period}</summary>
-
-| Language | Lines added | Share |
-|----------|------------:|------:|
-{rows}
-
-<sub>Source: {source_label} · git history · `diff-tree --numstat` · updated {generated}</sub>
-</details>
 """
 
 
