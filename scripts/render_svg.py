@@ -111,7 +111,7 @@ def compute_stats(data: dict) -> dict:
 
     peak_idx = max(range(n_weeks), key=lambda i: week_totals[i]) if week_totals else 0
     peak_week = weeks[peak_idx] if weeks else ""
-    peak_dt = _to_date(peak_week)
+    peak_dt = iso_to_date(peak_week)
     peak_label = f"{peak_dt.strftime('%b')} {peak_dt.day}" if peak_dt else peak_week
     peak_val = week_totals[peak_idx] if week_totals else 0
 
@@ -322,7 +322,7 @@ def render(data: dict) -> str:
     xlabels = []
     last_month = ""
     for i, week in enumerate(weeks):
-        dt = _to_date(week)
+        dt = iso_to_date(week)
         if not dt:
             continue
         label = dt.strftime("%b").upper()
