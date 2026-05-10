@@ -5,8 +5,7 @@ on:
     branches:
       - main
   schedule:
-    # Every 6 hours, on the hour (UTC)
-    - cron: "0 */6 * * *"
+    - cron: "0 0 */2 * *"
   workflow_dispatch:
 
 jobs:
@@ -31,8 +30,8 @@ jobs:
           GH_TOKEN:    ${{ secrets.GH_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_EMAIL:    ${{ secrets.GH_EMAIL }}
-          WEEKS_BACK:  "18"
-          MAX_REPOS:   "25"
+          WEEKS_BACK:  "12"
+          MAX_REPOS:   "30"
           OUTPUT_FILE: "/tmp/timeline.json"
         with:
           timeout_minutes: 15
