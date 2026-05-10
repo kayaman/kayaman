@@ -21,17 +21,17 @@ from pathlib import Path
 from urllib.parse import quote, urlsplit, urlunsplit
 
 WEEKS_BACK = int(os.environ.get("WEEKS_BACK", "26"))
-MAX_REPOS  = int(os.environ.get("MAX_REPOS", "25"))
+MAX_REPOS  = int(os.environ.get("MAX_REPOS", "30"))
 
 REPOS_DIR = Path("/tmp/repos")
 OUTPUT_FILE = Path(os.environ.get("OUTPUT_FILE", "/tmp/timeline.json"))
-TOP_N = 10
+TOP_N = 20
 
 EXT_MAP: dict[str, str | None] = {
     ".py":    "Python",
     ".ts":    "TypeScript",  ".tsx": "TypeScript",
-    ".js":    None,          ".jsx": None,         ".mjs": None,
-    ".tf":    "Terraform",   ".hcl": "Terraform",
+    ".js":    "Other",       ".jsx": "Other",     ".mjs": "TypeScript",
+    ".tf":    "Terraform",   ".hcl": "Terraform", ".tfvars":    "Terraform", 
     ".rs":    "Rust",
     ".go":    "Go",
     ".sh":    "Bash",        ".bash": "Bash",        ".zsh": "Bash",
@@ -67,10 +67,9 @@ EXT_MAP: dict[str, str | None] = {
     ".r":     "R",
     ".tex":   "LaTeX",
     ".mk":    "Make",
-    # Noise — exclude
-    ".xml":  None,
-    ".lock": None,
-    ".sum":  None,
+    "Makefile": "Make"
+
+    
 }
 
 
