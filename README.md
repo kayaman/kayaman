@@ -16,5 +16,3 @@
 ![Lines of code written per week](https://raw.githubusercontent.com/kayaman/kayaman/main/assets/loc_chart.svg?v=20260509)
 <!--END_SECTION:loc-->
 
-Optional workflow inputs: `GH_TOKEN`, `GH_USERNAME`, and optional `GH_EMAIL` drive the public GitHub timeline.
-
