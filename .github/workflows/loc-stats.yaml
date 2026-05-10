@@ -6,6 +6,10 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # Every 6 hours, on the hour (UTC)
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
 
 jobs:
   loc:
@@ -30,9 +34,10 @@ jobs:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_EMAIL:    ${{ secrets.GH_EMAIL }}
           WEEKS_BACK:  "18"
+          MAX_REPOS:   "25"
           OUTPUT_FILE: "/tmp/timeline.json"
         with:
-          timeout_minutes: 10
+          timeout_minutes: 15
           max_attempts: 3
           retry_wait_seconds: 10
           command: python3 scripts/collect_timeline.py

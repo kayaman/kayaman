@@ -41,6 +41,7 @@ LANG_COLORS: dict[str, tuple[str, str]] = {
     "Jupyter":    ("#DA5B0B", "#FF7F3F"),
     "C":          ("#64748B", "#94A3B8"),
     "C++":        ("#F34B7D", "#FF75A1"),
+    "C#":         ("#178600", "#3FB02E"),
     "Ruby":       ("#EF4444", "#F87171"),
     "Scala":      ("#DC322F", "#F14C4A"),
     "JSON":       ("#14B8A6", "#2DD4BF"),
@@ -50,6 +51,19 @@ LANG_COLORS: dict[str, tuple[str, str]] = {
     "CSS":        ("#563D7C", "#7A58A8"),
     "HTML":       ("#E34C26", "#F76E4A"),
     "Text":       ("#94A3B8", "#CBD5E1"),
+    "Astro":      ("#FF5D01", "#FF8338"),
+    "Svelte":     ("#FF3E00", "#FF6A3D"),
+    "Vue":        ("#41B883", "#5FCB9F"),
+    "GraphQL":    ("#E535AB", "#F062BD"),
+    "Protobuf":   ("#4285F4", "#6CA0F7"),
+    "Swift":      ("#FA7343", "#FB9166"),
+    "Dart":       ("#00B4AB", "#2DCFC7"),
+    "Lua":        ("#2C2D72", "#4849A0"),
+    "PHP":        ("#777BB4", "#9498C8"),
+    "R":          ("#198CE7", "#4BA8EF"),
+    "LaTeX":      ("#008080", "#33A0A0"),
+    "Dockerfile": ("#2496ED", "#52B0F2"),
+    "Make":       ("#6D8086", "#8FA1A6"),
     "Other":      ("#6B7280", "#9CA3AF"),
 }
 DEFAULT_COLOR = ("#6B7280", "#9CA3AF")
@@ -77,6 +91,26 @@ def abbrev(n: int, precision: int = 1) -> str:
     if n >= 1_000:
         return f"{n/1_000:.{precision}f}k".replace(".0k", "k")
     return str(n)
+
+
+def sparkline(values: list[int], x: float, y: float, w: float, h: float,
+              color: str) -> str:
+    """Tiny filled-area + polyline sparkline. Renders nothing if all-zero."""
+    if not values or max(values) == 0:
+        return ""
+    n = len(values)
+    vmax = max(values)
+    step = w / max(1, n - 1)
+    pts = " ".join(
+        f"{x + i*step:.1f},{y + h - (v/vmax)*h:.1f}"
+        for i, v in enumerate(values)
+    )
+    area_pts = f"{x:.1f},{y+h:.1f} " + pts + f" {x+w:.1f},{y+h:.1f}"
+    return (
+        f'<polygon points="{area_pts}" fill="{color}" opacity="0.18"/>'
+        f'<polyline points="{pts}" fill="none" stroke="{color}" '
+        f'stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
+    )
 
 
 def rounded_top_rect(x: float, y: float, w: float, h: float, r: float) -> str:
@@ -120,6 +154,16 @@ def compute_stats(data: dict) -> dict:
 
     avg = total_all // max(1, n_weeks)
 
+    # New (optional) fields — fall back gracefully so a legacy
+    # /tmp/timeline.json still renders (just without the pulse section).
+    meta = data.get("totals_meta", {})
+    commits_series = data.get("commits_per_week", [])
+    repos_series   = data.get("repos_per_week", [])
+
+    gross_added   = meta.get("gross_added",   total_all)
+    gross_deleted = meta.get("gross_deleted", 0)
+    net           = meta.get("net",           gross_added - gross_deleted)
+
     return {
         "total": total_all,
         "top_lang": top_lang,
@@ -131,6 +175,17 @@ def compute_stats(data: dict) -> dict:
         "n_weeks": n_weeks,
         "n_langs": len(languages),
         "week_totals": week_totals,
+        # Net / deletion accounting
+        "gross_added":   gross_added,
+        "gross_deleted": gross_deleted,
+        "net":           net,
+        # Pulse series
+        "commits_total":  meta.get("commits", sum(commits_series)),
+        "commits_series": commits_series,
+        "commits_peak":   max(commits_series) if commits_series else 0,
+        "repos_total":    meta.get("repos", 0),
+        "repos_series":   repos_series,
+        "repos_peak":     max(repos_series) if repos_series else 0,
     }
 
 
@@ -149,8 +204,8 @@ def render(data: dict) -> str:
         return "<svg xmlns='http://www.w3.org/2000/svg'><text>No data</text></svg>"
 
     # ── Canvas ────────────────────────────────────────────────────────────────
+    # H is computed below once the language breakdown geometry is known.
     W           = 960
-    H           = 580
     PAD         = 28
 
     # ── Header ────────────────────────────────────────────────────────────────
@@ -200,8 +255,18 @@ def render(data: dict) -> str:
     def y_of(v: float) -> float:
         return CHART_BOTTOM - (v / nice_max) * CHART_H
 
+    # ── Activity pulse (commits + repos sparklines) ──────────────────────────
+    # Only rendered when commits_per_week / repos_per_week data is present;
+    # legacy timeline.json without those fields collapses this section away.
+    has_pulse = bool(stats["commits_series"]) or bool(stats["repos_series"])
+    PULSE_TOP     = CHART_BOTTOM + 36           # section title at PULSE_TOP - 12
+    PULSE_H       = 36
+    PULSE_GAP     = 24
+    PULSE_PANEL_W = (W - 2 * PAD - PULSE_GAP) / 2
+    PULSE_BOTTOM  = PULSE_TOP + PULSE_H if has_pulse else CHART_BOTTOM
+
     # ── Language breakdown ────────────────────────────────────────────────────
-    LB_TOP   = CHART_BOTTOM + 48           # section title at LB_TOP - 12
+    LB_TOP   = PULSE_BOTTOM + (36 if has_pulse else 48)  # section title at LB_TOP - 12
     LB_ROW_H = 20
     LB_COL_GAP = 40
     LB_COLS  = 2
@@ -209,6 +274,9 @@ def render(data: dict) -> str:
 
     n_langs = len(languages)
     LB_ROWS_PER_COL = math.ceil(n_langs / LB_COLS)
+
+    # Canvas height: enough room for LB rows + footer (~50px below).
+    H = int(LB_TOP + LB_ROWS_PER_COL * LB_ROW_H + 60)
 
     # ── Build SVG pieces ──────────────────────────────────────────────────────
     total_all = stats["total"]
@@ -366,12 +434,23 @@ def render(data: dict) -> str:
 
     top_lang_color = color_for(stats["top_lang"])[0]
     kpis = []
-    kpis += kpi_card(
-        0, "TOTAL LINES",
-        abbrev(stats["total"]),
-        f"across {stats['n_langs']} languages",
-        "#22C55E",
-    )
+    if stats["gross_deleted"] > 0:
+        # Show net as the headline value with a gross/deleted breakdown sub.
+        # Use a hyphen-minus (U+002D) with a thin space for the deletion sign
+        # so it renders cleanly across fonts; "−" looks better but isn't
+        # universally safe in older system fonts.
+        total_label = "NET LINES"
+        total_value = abbrev(stats["net"])
+        total_sub   = (
+            f"+{abbrev(stats['gross_added'])} / "
+            f"−{abbrev(stats['gross_deleted'])} · "
+            f"{stats['n_langs']} langs"
+        )
+    else:
+        total_label = "TOTAL LINES"
+        total_value = abbrev(stats["total"])
+        total_sub   = f"across {stats['n_langs']} languages"
+    kpis += kpi_card(0, total_label, total_value, total_sub, "#22C55E")
     kpis += kpi_card(
         1, "TOP LANGUAGE",
         stats["top_lang"],
@@ -390,6 +469,58 @@ def render(data: dict) -> str:
         f"over {stats['n_weeks']} weeks",
         "#3178C6",
     )
+
+    # ─── Activity pulse panels ────────────────────────────────────────────────
+    pulse_pieces: list[str] = []
+    if has_pulse:
+        def pulse_panel(idx: int, label: str, total: int, series: list[int],
+                        peak: int, color: str) -> list[str]:
+            x = PAD + idx * (PULSE_PANEL_W + PULSE_GAP)
+            y = PULSE_TOP
+            cy = y + PULSE_H / 2
+            # Compact peak indicator: ↑22 in the accent color, visually tying
+            # the number to the sparkline below it.
+            peak_str = f"↑{peak:,}"
+            out = [
+                # Card background (matches KPI cards)
+                f'<rect x="{x:.1f}" y="{y}" width="{PULSE_PANEL_W:.1f}" '
+                f'height="{PULSE_H}" rx="8" fill="url(#card-bg)" '
+                f'stroke="var(--border)"/>',
+                # Color dot
+                f'<circle cx="{x + 12:.1f}" cy="{cy:.1f}" '
+                f'r="3.5" fill="{color}"/>',
+                # Label
+                f'<text x="{x + 24:.1f}" y="{cy + 3.5:.1f}" '
+                f'class="kpi-label">{label}</text>',
+                # Big value (mono, tabular) — bumped to 18px for impact
+                f'<text x="{x + 88:.1f}" y="{cy + 5:.1f}" '
+                f'class="pulse-val mono">{total:,}</text>',
+                # Peak — colored to match sparkline, compact ↑N form
+                f'<text x="{x + PULSE_PANEL_W - 12:.1f}" y="{cy + 4:.1f}" '
+                f'class="pulse-peak mono" fill="{color}" '
+                f'text-anchor="end">{peak_str}</text>',
+            ]
+            # Sparkline gets the wide middle band — value width is bounded
+            # by abbrev() output for typical commit/repo counts (~3 chars).
+            spark_x = x + 150
+            spark_w = PULSE_PANEL_W - 150 - 56
+            spark_y = y + 6
+            spark_h = PULSE_H - 12
+            if spark_w > 20:
+                out.append(sparkline(series, spark_x, spark_y,
+                                     spark_w, spark_h, color))
+            return out
+
+        pulse_pieces += pulse_panel(
+            0, "COMMITS",
+            stats["commits_total"], stats["commits_series"],
+            stats["commits_peak"], "#22C55E",
+        )
+        pulse_pieces += pulse_panel(
+            1, "REPOS",
+            stats["repos_total"], stats["repos_series"],
+            stats["repos_peak"], "#F97316",
+        )
 
     # ─── Language breakdown rows ──────────────────────────────────────────────
     lb_rows = []
@@ -511,6 +642,14 @@ def render(data: dict) -> str:
         font-size: 9.5px; fill: var(--subtle);
         font-variant-numeric: tabular-nums;
       }}
+      .pulse-val {{
+        font-size: 18px; font-weight: 700; fill: var(--fg);
+        font-variant-numeric: tabular-nums;
+      }}
+      .pulse-peak {{
+        font-size: 11px; font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }}
       .lb-name {{ font-size: 11px; font-weight: 500; fill: var(--fg); }}
       .lb-val  {{ font-size: 10.5px; fill: var(--muted);
                   font-variant-numeric: tabular-nums; }}
@@ -555,6 +694,11 @@ def render(data: dict) -> str:
 
   <!-- X-axis labels -->
   {"".join(xlabels)}
+
+  <!-- Activity pulse section (commits + repos sparklines) -->
+  {f'<text x="{PAD}" y="{PULSE_TOP - 12}" class="section">ACTIVITY PULSE</text>' if has_pulse else ""}
+  {f'<text x="{W - PAD}" y="{PULSE_TOP - 12}" class="period" text-anchor="end">weekly cadence</text>' if has_pulse else ""}
+  {"".join(pulse_pieces)}
 
   <!-- Language breakdown section title -->
   <text x="{PAD}" y="{LB_TOP - 12}" class="section">LANGUAGE BREAKDOWN</text>
