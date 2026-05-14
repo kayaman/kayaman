@@ -353,22 +353,42 @@ def main():
         for lang, n in w_langs.items():
             totals_deleted[lang] += n
 
-    top_langs = [l for l, _ in sorted(totals_added.items(), key=lambda x: -x[1])
-                 if l != "Other"][:TOP_N]
+    # Reserve one slot for "Other", so top named langs = TOP_N - 1.
+    named_sorted = [l for l, _ in sorted(totals_added.items(), key=lambda x: -x[1])
+                    if l != "Other"]
+    top_named = named_sorted[:TOP_N - 1]
+    # "Other" aggregates all languages that didn't make the top named list,
+    # plus any lines already mapped to the catch-all "Other" bucket.
+    other_langs = set(named_sorted[TOP_N - 1:]) | {"Other"}
+
+    other_added_per_week   = [sum(global_added.get(w, {}).get(l, 0)   for l in other_langs) for w in weeks]
+    other_deleted_per_week = [sum(global_deleted.get(w, {}).get(l, 0) for l in other_langs) for w in weeks]
+    other_total_added      = sum(totals_added.get(l, 0)   for l in other_langs)
+    other_total_deleted    = sum(totals_deleted.get(l, 0) for l in other_langs)
+
+    top_langs = top_named + ["Other"]
 
     series = {
         lang: [global_added.get(w, {}).get(lang, 0) for w in weeks]
-        for lang in top_langs
+        for lang in top_named
     }
+    series["Other"] = other_added_per_week
     series_deleted = {
         lang: [global_deleted.get(w, {}).get(lang, 0) for w in weeks]
-        for lang in top_langs
+        for lang in top_named
     }
+    series_deleted["Other"] = other_deleted_per_week
+
+    totals_out         = {l: totals_added[l]   for l in top_named}
+    totals_out["Other"]          = other_total_added
+    totals_deleted_out = {l: totals_deleted[l] for l in top_named}
+    totals_deleted_out["Other"]  = other_total_deleted
+
     commits_per_week = [global_commits.get(w, 0) for w in weeks]
     repos_per_week_counts = [len(repos_per_week.get(w, ())) for w in weeks]
 
-    gross_added   = sum(totals_added[l] for l in top_langs)
-    gross_deleted = sum(totals_deleted[l] for l in top_langs)
+    gross_added   = sum(totals_out.values())
+    gross_deleted = sum(totals_deleted_out.values())
 
     if not active_labels:
         source_label = "configured sources"
@@ -381,9 +401,9 @@ def main():
         "weeks": weeks,
         "languages": top_langs,
         "series": series,
-        "totals": {l: totals_added[l] for l in top_langs},
+        "totals": totals_out,
         "series_deleted": series_deleted,
-        "totals_deleted": {l: totals_deleted[l] for l in top_langs},
+        "totals_deleted": totals_deleted_out,
         "commits_per_week": commits_per_week,
         "repos_per_week":   repos_per_week_counts,
         "totals_meta": {
@@ -400,8 +420,8 @@ def main():
     print(f"\n[collect] Top languages (last {WEEKS_BACK} weeks):")
     for lang in top_langs:
         print(
-            f"  {lang:<20} +{totals_added[lang]:>8,} / "
-            f"-{totals_deleted[lang]:>8,} lines"
+            f"  {lang:<20} +{totals_out[lang]:>8,} / "
+            f"-{totals_deleted_out[lang]:>8,} lines"
         )
     print(
         f"\n[collect] Net: +{gross_added - gross_deleted:,} · "
