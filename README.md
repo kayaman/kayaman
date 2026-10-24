@@ -9,6 +9,7 @@
 - Continuous Learning
 - Evangelism
 - Road Cycling
+- Swimming
 
 ## What I have been coding..
 
